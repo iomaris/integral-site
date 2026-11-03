@@ -31,6 +31,7 @@
   html{scroll-behavior:smooth}
   html.lenis,html.lenis body{height:auto}
   .lenis.lenis-smooth{scroll-behavior:auto!important}
+  html{overflow-x:hidden}
   body{margin:0;background:var(--bg);color:var(--text);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   h1,h2,h3,h4{font-family:"Montserrat",sans-serif;font-weight:800;line-height:1.08;letter-spacing:-.02em;margin:0;color:var(--navy-ink)}
   a{color:inherit;text-decoration:none}
@@ -121,7 +122,9 @@
   .deck-meta p{color:var(--muted);font-size:14px;margin:3px 0 0}
   .deck-count{font-family:"Montserrat";font-weight:600;color:var(--muted);font-size:14px;letter-spacing:.08em;flex:none}
   .deck-count span{color:var(--navy)}
-  @media(max-width:600px){.deck{max-width:320px}.dcard.back1{transform:translate(14px,-9px) scale(.96) rotate(2deg)}.dcard.back2{transform:translate(26px,-16px) scale(.93) rotate(3deg)}}
+  @media(max-width:380px){.deck{max-width:290px}}
+  @media(max-width:600px){.deck{max-width:320px}.dcard.back1{transform:translate(14px,-9px) scale(.96) rotate(2deg)}.dcard.back2{transform:translate(26px,-16px) scale(.93) rotate(3deg)}
+  .deck-ctrl{flex-wrap:wrap;justify-content:center;gap:12px}.deck-meta{flex:0 0 100%;order:-1;text-align:center;margin-bottom:2px}.deck-count{order:0}}
   @media(prefers-reduced-motion:reduce){.dcard{transition:none}}
 
   /* STATS */
@@ -246,10 +249,10 @@
   .pa-left{left:-14px}.pa-right{right:-14px}
   .prow-arrow:hover{background:var(--bg-soft);border-color:var(--blue)}
   .prow-arrow svg{width:20px;height:20px}
-  .price-row{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 2px 16px;-webkit-overflow-scrolling:touch}
+  .price-row{display:flex;gap:18px;overflow-x:auto;scroll-behavior:smooth;padding:8px 2px 16px;-webkit-overflow-scrolling:touch}
   .price-row::-webkit-scrollbar{height:6px}
   .price-row::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
-  .pcard{flex:0 0 272px;scroll-snap-align:start;position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 24px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;transition:transform .3s var(--ease),box-shadow .3s,border-color .3s}
+  .pcard{flex:0 0 272px;position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 24px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;transition:transform .3s var(--ease),box-shadow .3s,border-color .3s}
   .pcard:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
   .pcard.feat{border-color:var(--blue);box-shadow:0 20px 44px -22px rgba(23,75,114,.55);background:linear-gradient(180deg,#f2f8fd,#fff)}
   .pc-badge{position:absolute;top:-11px;left:24px;background:var(--navy);color:#fff;font-family:"Montserrat";font-weight:700;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
@@ -691,7 +694,7 @@
     scene=new THREE.Scene(); scene.fog=new THREE.Fog(0xffffff,16,34); clock=new THREE.Clock();
     camera=new THREE.PerspectiveCamera(40,hero.clientWidth/hero.clientHeight,0.1,100); camera.position.set(0,0.2,12);
     var rig=new THREE.Group(); scene.add(rig);
-    function sizes(){ var w=hero.clientWidth,h=hero.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); rig.position.x=w>980?1.75:0; }
+    function sizes(){ var w=hero.clientWidth,h=hero.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); var sc=w>980?1:(w>620?0.62:0.46); rig.scale.setScalar(sc); rig.position.x=w>980?1.75:0; rig.position.y=w>980?0:(w>620?1.4:3.2); }
     scene.add(new THREE.AmbientLight(0xffffff,0.95));
     var key=new THREE.DirectionalLight(0xffffff,1.25); key.position.set(-5,7,8); scene.add(key);
     var fillL=new THREE.DirectionalLight(0x9ec7e6,0.7); fillL.position.set(6,1,4); scene.add(fillL);
@@ -754,9 +757,12 @@
 
   /* ===== setas do carrossel de preços ===== */
   (function(){ var row=document.getElementById("priceRow"); if(!row) return;
-    var pv=document.getElementById("pricePrev"), nx=document.getElementById("priceNext"), step=290;
-    if(pv) pv.addEventListener("click",function(){ row.scrollBy({left:-step,behavior:"smooth"}); });
-    if(nx) nx.addEventListener("click",function(){ row.scrollBy({left:step,behavior:"smooth"}); });
+    var cards=row.querySelectorAll(".pcard");
+    function step(){ if(cards.length>1){ var a=cards[0].getBoundingClientRect(), b=cards[1].getBoundingClientRect(); return b.left-a.left; } return row.clientWidth*0.8; }
+    function go(dir){ var max=row.scrollWidth-row.clientWidth; var t=Math.max(0,Math.min(max,row.scrollLeft+dir*step())); row.scrollTo({left:t,behavior:"smooth"}); }
+    var pv=document.getElementById("pricePrev"), nx=document.getElementById("priceNext");
+    if(pv) pv.addEventListener("click",function(){ go(-1); });
+    if(nx) nx.addEventListener("click",function(){ go(1); });
   })();
 
   /* FORM -> WhatsApp */
