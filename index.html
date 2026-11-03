@@ -157,7 +157,11 @@
   .tcard .who span{font-size:13px;color:var(--muted)}
   .tcard.fill-navy .who span,.tcard.fill-ink .who span{color:rgba(255,255,255,.72)}
   @media(max-width:980px){.tgrid{grid-template-columns:1fr 1fr}.t-c{grid-row:span 1}}
-  @media(max-width:600px){.tgrid{grid-template-columns:1fr}.t-a,.t-e{grid-column:span 1}}
+  @media(max-width:600px){.tgrid{grid-template-columns:1fr}.t-a,.t-e{grid-column:span 1}
+  .hero-meta{display:grid;grid-template-columns:repeat(3,1fr);margin-top:30px;padding-top:18px}
+  .hero-meta .m{padding:0 12px;margin:0;border-right:1px solid var(--line);text-align:left}
+  .hero-meta .m:first-child{padding-left:0}.hero-meta .m:last-child{border:0;padding-right:0}
+  .hero-meta .m b{font-size:21px}.hero-meta .m span{font-size:11px;line-height:1.25}}
   /* MARCAS */
   .brands{padding-bottom:clamp(56px,8vw,88px)}
   .marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
@@ -694,7 +698,7 @@
     scene=new THREE.Scene(); scene.fog=new THREE.Fog(0xffffff,16,34); clock=new THREE.Clock();
     camera=new THREE.PerspectiveCamera(40,hero.clientWidth/hero.clientHeight,0.1,100); camera.position.set(0,0.2,12);
     var rig=new THREE.Group(); scene.add(rig);
-    function sizes(){ var w=hero.clientWidth,h=hero.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); var sc=w>980?1:(w>620?0.62:0.46); rig.scale.setScalar(sc); rig.position.x=w>980?1.75:0; rig.position.y=w>980?0:(w>620?1.4:3.2); }
+    function sizes(){ var w=hero.clientWidth,h=hero.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); var sc=w>980?1:(w>620?0.42:0.17); rig.scale.setScalar(sc); rig.position.x=w>980?1.75:(w>620?0:-0.7); rig.position.y=w>980?0:(w>620?1.4:2.8); }
     scene.add(new THREE.AmbientLight(0xffffff,0.95));
     var key=new THREE.DirectionalLight(0xffffff,1.25); key.position.set(-5,7,8); scene.add(key);
     var fillL=new THREE.DirectionalLight(0x9ec7e6,0.7); fillL.position.set(6,1,4); scene.add(fillL);
@@ -722,12 +726,13 @@
       var grd=g.createRadialGradient(32,32,0,32,32,32); grd.addColorStop(0,"rgba(120,185,225,0.9)"); grd.addColorStop(1,"rgba(120,185,225,0)");
       g.fillStyle=grd; g.fillRect(0,0,64,64); return new THREE.CanvasTexture(c); }
     var sprite=softSprite();
-    var VN=reduce?50:190,vpos=new Float32Array(VN*3),vvel=[];
+    var isMob=(window.innerWidth||999)<=620;
+    var VN=reduce?50:(isMob?55:190),vpos=new Float32Array(VN*3),vvel=[];
     function spawnV(i){ vpos[i*3]=(Math.random()-0.5)*(bW-1.4); vpos[i*3+1]=-bH*0.5+0.4; vpos[i*3+2]=bD*0.5+0.5;
       vvel[i]={x:(Math.random()-0.5)*0.008,y:-(0.018+Math.random()*0.03),z:0.018+Math.random()*0.025}; }
     for(var i=0;i<VN;i++){ spawnV(i); vpos[i*3+1]-=Math.random()*3.5; }
     var vgeo=new THREE.BufferGeometry(); vgeo.setAttribute("position",new THREE.BufferAttribute(vpos,3));
-    vapor=new THREE.Points(vgeo,new THREE.PointsMaterial({size:0.42,map:sprite,transparent:true,opacity:0.5,depthWrite:false,color:0x8ec2e4})); vapor.position.copy(unit.position); rig.add(vapor);
+    vapor=new THREE.Points(vgeo,new THREE.PointsMaterial({size:isMob?0.3:0.42,map:sprite,transparent:true,opacity:isMob?0.28:0.5,depthWrite:false,color:0x8ec2e4})); vapor.position.copy(unit.position); rig.add(vapor);
     var FN=reduce?40:110,fpos=new Float32Array(FN*3),fsp=[];
     for(var j=0;j<FN;j++){ fpos[j*3]=(Math.random()-0.2)*22; fpos[j*3+1]=(Math.random()-0.5)*16; fpos[j*3+2]=(Math.random()-0.5)*12-2; fsp[j]=0.08+Math.random()*0.3; }
     var fgeo=new THREE.BufferGeometry(); fgeo.setAttribute("position",new THREE.BufferAttribute(fpos,3));
